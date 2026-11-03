@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PlayersModule } from './players/players.module';
 
 @Module({
   imports: [
@@ -27,6 +28,8 @@ import { AppService } from './app.service';
         synchronize: false, // ¡Muy importante! false para no alterar la estructura ya existente de init.sql
       }),
     }),
+
+    PlayersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
