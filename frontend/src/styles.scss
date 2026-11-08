@@ -1,0 +1,17 @@
+/* Variables de color - Pinterest */
+:root {
+  --color-red-wine: #400101;
+  --color-paprika: #730C02;
+  --color-fire: #BF3604;
+  --color-flame-orange: #F2913D;
+  
+  --color-bg-light: #fef8f5; 
+  --color-text-dark: #2c1e16;
+}
+
+
+body {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-dark);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
