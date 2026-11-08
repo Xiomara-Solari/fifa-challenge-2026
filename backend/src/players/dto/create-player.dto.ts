@@ -82,7 +82,7 @@ export class CreatePlayerDto {
   @IsInt()
   skillMoves?: number;
 
-  // Habilidades principales (para el Radar Chart)
+  // Habilidades numéricas principales (para el gráfico Radar)
   @IsOptional()
   @IsInt()
   @Min(0)
