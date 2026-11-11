@@ -1,0 +1,111 @@
+<section class="detail-page">
+  @if (isLoadingPlayer()) {
+    <p class="status-message">Cargando jugador...</p>
+  } @else if (playerError(); as error) {
+    <div class="alert-error">{{ error }}</div>
+  } @else if (player(); as p) {
+    <header class="detail-header">
+      @if (p.playerFaceUrl) {
+        <img [src]="p.playerFaceUrl" [alt]="p.longName" class="player-photo" />
+      } @else {
+        <div class="player-photo placeholder">{{ initials(p.longName) }}</div>
+      }
+
+      <div class="header-info">
+        <div class="header-title-row">
+          <h2>{{ p.longName }}</h2>
+          <a [routerLink]="['/players/edit', p.id]" class="btn-edit">Editar jugador</a>
+        </div>
+        <p class="subtitle">
+          {{ p.clubName || 'Sin club' }} · {{ p.nationalityName || '—' }} ·
+          {{ p.playerPositions }}
+        </p>
+
+        <dl class="bio-grid">
+          <div>
+            <dt>Edición FIFA</dt>
+            <dd>{{ p.fifaVersion }}</dd>
+          </div>
+          <div>
+            <dt>Valoración global</dt>
+            <dd><span class="overall-badge">{{ p.overall }}</span></dd>
+          </div>
+          <div>
+            <dt>Potencial</dt>
+            <dd>{{ p.potential }}</dd>
+          </div>
+          <div>
+            <dt>Edad</dt>
+            <dd>{{ p.age }}</dd>
+          </div>
+          <div>
+            <dt>Altura</dt>
+            <dd>{{ p.heightCm ? p.heightCm + ' cm' : '—' }}</dd>
+          </div>
+          <div>
+            <dt>Peso</dt>
+            <dd>{{ p.weightKg ? p.weightKg + ' kg' : '—' }}</dd>
+          </div>
+          <div>
+            <dt>Pie preferido</dt>
+            <dd>{{ p.preferredFoot || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Valor de mercado</dt>
+            <dd>{{ formatEur(p.valueEur) }}</dd>
+          </div>
+          <div>
+            <dt>Sueldo</dt>
+            <dd>{{ formatEur(p.wageEur) }}</dd>
+          </div>
+        </dl>
+      </div>
+    </header>
+
+    <div class="content-grid">
+      <section class="card chart-card">
+        <h3>Métricas de rendimiento</h3>
+        <canvas #radarCanvas class="radar-canvas"></canvas>
+      </section>
+
+      <section class="card narrative-card">
+        <h3>Análisis histórico (IA)</h3>
+        @if (isLoadingNarrative()) {
+          <p class="status-message">
+            Generando el análisis con IA. Esto puede tardar unos segundos...
+          </p>
+        } @else if (narrativeError(); as error) {
+          <div class="alert-error">{{ error }}</div>
+          <button type="button" class="btn-narrative" (click)="generateNarrative()">
+            Reintentar
+          </button>
+        } @else if (narrative(); as n) {
+          @if (n.totalEditionsTracked > 0) {
+            <p class="narrative-meta">
+              Basado en {{ n.totalEditionsTracked }}
+              {{ n.totalEditionsTracked === 1 ? 'edición registrada' : 'ediciones registradas' }}
+            </p>
+          }
+          <div class="narrative-content" [innerHTML]="n.narrative | markdown"></div>
+        } @else {
+          <div class="narrative-empty">
+            <p class="narrative-placeholder">
+              Genera una crónica periodística sobre la evolución histórica de {{ p.longName }} a través de las ediciones de FIFA.
+            </p>
+            <button type="button" class="btn-narrative" (click)="generateNarrative()">
+              Generar análisis con IA
+            </button>
+          </div>
+        }
+      </section>
+    </div>
+    <app-player-timeline
+      [history]="history()?.history ?? []"
+      [currentPlayerId]="p.id"
+      [playerName]="p.longName"
+      [isLoading]="isLoadingHistory()"
+      [error]="historyError()"
+      (retry)="retryHistory()"
+    />
+  }
+</section>

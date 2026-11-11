@@ -25,6 +25,7 @@ import { AuthModule } from './auth/auth.module';
         username: configService.get<string>('DB_USER', 'fifa_user'),
         password: configService.get<string>('DB_PASSWORD', 'fifa_password'),
         database: configService.get<string>('DB_NAME', 'football_db'),
+        charset: 'utf8mb4',
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: false, // ¡Muy importante! false para no alterar la estructura ya existente de init.sql
       }),

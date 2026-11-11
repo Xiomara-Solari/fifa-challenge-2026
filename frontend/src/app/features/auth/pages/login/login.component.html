@@ -38,13 +38,13 @@
       </div>
 
       <!-- Mensaje de Error del Servidor -->
-      <div class="alert alert-danger" *ngIf="errorMessage">
-        {{ errorMessage }}
+      <div class="alert alert-danger" *ngIf="errorMessage()">
+        {{ errorMessage() }}
       </div>
 
       <!-- Botón de Envío -->
-      <button type="submit" class="btn-submit" [disabled]="isLoading">
-        {{ isLoading ? 'Iniciando...' : 'Entrar' }}
+      <button type="submit" class="btn-submit" [disabled]="isLoading()">
+        {{ isLoading() ? 'Iniciando...' : 'Entrar' }}
       </button>
 
     </form>

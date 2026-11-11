@@ -1,0 +1,83 @@
+<section class="players-page">
+  <header class="page-header">
+    <h2>Jugadores</h2>
+    <div class="header-actions">
+      <a routerLink="/players/new" class="btn-create">+ Crear Jugador</a>
+      <button
+        type="button"
+        class="btn-export"
+        (click)="exportCsv()"
+        [disabled]="isExporting()"
+      >
+        {{ isExporting() ? 'Exportando...' : 'Exportar CSV' }}
+      </button>
+    </div>
+  </header>
+
+  <form [formGroup]="filterForm" (ngSubmit)="onFilterSubmit()" class="filters-bar">
+    <input formControlName="name" type="text" placeholder="Nombre" />
+    <input formControlName="club" type="text" placeholder="Club" />
+    <input formControlName="position" type="text" placeholder="Posición (ej. ST)" />
+    <input formControlName="fifaVersion" type="text" placeholder="Edición FIFA (ej. 17)" />
+    <button type="submit" class="btn-filter">Buscar</button>
+  </form>
+
+  @if (errorMessage(); as error) {
+    <div class="alert-error">{{ error }}</div>
+  }
+
+  <div class="table-card">
+    @if (isLoading()) {
+      <p class="table-status">Cargando jugadores...</p>
+    } @else if (players().length === 0) {
+      <p class="table-status">No se encontraron jugadores con los filtros aplicados.</p>
+    } @else {
+      <table class="players-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Club</th>
+            <th>Posición</th>
+            <th>Valoración</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (player of players(); track player.id) {
+            <tr>
+              <td>
+                <a [routerLink]="['/players', player.id]" class="player-link">
+                  {{ player.longName }}
+                </a>
+              </td>
+              <td>{{ player.clubName || '—' }}</td>
+              <td>{{ player.playerPositions }}</td>
+              <td><span class="overall-badge">{{ player.overall }}</span></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+  <footer class="pagination-controls">
+    <button
+      type="button"
+      class="btn-page"
+      (click)="goToPreviousPage()"
+      [disabled]="!hasPrevious()"
+    >
+      Anterior
+    </button>
+    <span class="page-indicator">
+      Página {{ meta()?.page ?? '—' }} de {{ meta()?.totalPages ?? '—' }}
+    </span>
+    <button
+      type="button"
+      class="btn-page"
+      (click)="goToNextPage()"
+      [disabled]="!hasNext()"
+    >
+      Siguiente
+    </button>
+  </footer>
+</section>

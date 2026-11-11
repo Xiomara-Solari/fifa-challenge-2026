@@ -58,6 +58,32 @@ export interface PlayerNarrativeResponse {
   narrative: string;
 }
 
+export interface PlayerHistoryEntry {
+  id: number;
+  fifaVersion: string;
+  fifaUpdate: string;
+  longName: string;
+  playerPositions: string;
+  clubName?: string | null;
+  age: number;
+  overall: number;
+  potential: number;
+  valueEur?: number | null;
+  pace?: number | null;
+  shooting?: number | null;
+  passing?: number | null;
+  dribbling?: number | null;
+  defending?: number | null;
+  physic?: number | null;
+}
+
+export interface PlayerHistoryResponse {
+  playerId: number;
+  playerName: string;
+  totalEditionsTracked: number;
+  history: PlayerHistoryEntry[];
+}
+
 
 export type CreatePlayerPayload = Omit<Player, 'id'>;
 

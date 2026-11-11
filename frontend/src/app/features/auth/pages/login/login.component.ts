@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -22,33 +22,28 @@ export class LoginComponent {
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
-  errorMessage: string | null = null;
-  isLoading: boolean = false;
+  errorMessage = signal<string | null>(null);
+  isLoading = signal(false);
 
   onSubmit(): void {
-    // Si el formulario es inválido, no hacemos la petición HTTP
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
-    this.isLoading = true;
-    this.errorMessage = null;
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
 
     const credentials = this.loginForm.value;
 
     this.authService.login(credentials).subscribe({
       next: () => {
-        // Redirigir al listado de jugadores tras un login exitoso
+        this.isLoading.set(false);
         this.router.navigate(['/players']);
       },
       error: (err) => {
-        this.isLoading = false;
-        // Capturamos el error 401 que envía NestJS
-        this.errorMessage = err.error?.message || 'Error al iniciar sesión';
-      },
-      complete: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
+        this.errorMessage.set(err.error?.message || 'Error al iniciar sesión');
       }
     });
   }

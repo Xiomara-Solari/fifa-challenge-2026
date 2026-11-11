@@ -15,3 +15,88 @@ body {
   color: var(--color-text-dark);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+/* Estilos para contenido HTML generado dinámicamente por MarkdownPipe ([innerHTML]).
+   Se declaran aquí con la clase `.narrative-content` para evitar `::ng-deep` (deprecado)
+   y sortear ViewEncapsulation.Emulated sin exceder el presupuesto SCSS del componente. */
+.narrative-content {
+  line-height: 1.65;
+  color: var(--color-text-dark);
+  font-size: 0.95rem;
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--color-red-wine);
+    margin: 1.1rem 0 0.5rem;
+    line-height: 1.3;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  h3 {
+    font-size: 1.05rem;
+    border-bottom: 1px solid rgba(242, 145, 61, 0.35);
+    padding-bottom: 0.25rem;
+  }
+
+  p {
+    margin: 0 0 0.85rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  strong {
+    color: var(--color-paprika);
+    font-weight: 700;
+  }
+
+  em {
+    color: var(--color-red-wine);
+  }
+
+  ul,
+  ol {
+    padding-left: 1.35rem;
+    margin: 0.4rem 0 0.85rem;
+  }
+
+  li {
+    margin-bottom: 0.35rem;
+
+    p {
+      margin: 0;
+    }
+
+    &::marker {
+      color: var(--color-fire);
+    }
+  }
+
+  blockquote {
+    border-left: 3px solid var(--color-flame-orange);
+    margin: 0.75rem 0;
+    padding: 0.35rem 0.85rem;
+    background-color: var(--color-bg-light);
+    border-radius: 0 6px 6px 0;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid rgba(115, 12, 2, 0.15);
+    margin: 0.9rem 0;
+  }
+
+  code {
+    background-color: var(--color-bg-light);
+    color: var(--color-paprika);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+}

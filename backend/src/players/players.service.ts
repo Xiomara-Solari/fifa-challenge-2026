@@ -151,20 +151,21 @@ export class PlayersService {
 
     return `\uFEFF${csv}`;
   }
-  // 6. Análisis narrativo de evolución histórica con LangChain / LLM
-  async generateHistoricalNarrative(id: number) {
-    // Paso A: Obtener el jugador base
-    const basePlayer = await this.findOne(id);
-
-    // Paso B: Consultar todas las apariciones históricas ordenadas por versión de FIFA
+  // Helper compartido para consultar todas las apariciones históricas de un futbolista
+  private async findHistoryByLongName(longName: string): Promise<Player[]> {
     const history = await this.playerRepository
       .createQueryBuilder('player')
       .select([
+        'player.id',
         'player.fifaVersion',
-        'player.age',
+        'player.fifaUpdate',
+        'player.longName',
+        'player.playerPositions',
         'player.clubName',
+        'player.age',
         'player.overall',
         'player.potential',
+        'player.valueEur',
         'player.pace',
         'player.shooting',
         'player.passing',
@@ -172,15 +173,39 @@ export class PlayersService {
         'player.defending',
         'player.physic',
       ])
-      .where('player.longName = :longName', { longName: basePlayer.longName })
+      .where('player.longName = :longName', { longName })
       .orderBy('CAST(player.fifaVersion AS UNSIGNED)', 'ASC')
+      .addOrderBy('CAST(player.fifaUpdate AS UNSIGNED)', 'ASC')
+      .addOrderBy('player.id', 'ASC')
       .getMany();
 
     if (!history.length) {
       throw new NotFoundException(
-        `No se encontraron registros históricos para ${basePlayer.longName}`,
+        `No se encontraron registros históricos para ${longName}`,
       );
     }
+
+    return history;
+  }
+
+  // 6. Historial cronológico para la línea de tiempo (FIFA 15-23)
+  async getHistory(id: number) {
+    const basePlayer = await this.findOne(id);
+    const history = await this.findHistoryByLongName(basePlayer.longName);
+
+    return {
+      playerId: basePlayer.id,
+      playerName: basePlayer.longName,
+      totalEditionsTracked: history.length,
+      history,
+    };
+  }
+
+  // 7. Análisis narrativo de evolución histórica con LangChain / LLM
+  async generateHistoricalNarrative(id: number) {
+    // Paso A: Obtener el jugador base y todas sus apariciones históricas
+    const basePlayer = await this.findOne(id);
+    const history = await this.findHistoryByLongName(basePlayer.longName);
 
     // Paso C: Transformar el array de datos en un resumen textual legible para el LLM
     const formattedData = history

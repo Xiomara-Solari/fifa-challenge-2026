@@ -41,6 +41,11 @@ export class PlayersController {
     return await this.playersService.findOne(id);
   }
 
+  @Get(':id/history')
+  async getHistory(@Param('id', ParseIntPipe) id: number) {
+    return await this.playersService.getHistory(id);
+  }
+
   @Get(':id/narrative')
   async getNarrative(@Param('id', ParseIntPipe) id: number) {
     return await this.playersService.generateHistoricalNarrative(id);

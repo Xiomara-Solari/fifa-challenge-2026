@@ -1,0 +1,96 @@
+<section class="timeline-card">
+  <header class="timeline-header">
+    <div>
+      <h3>Evolución histórica (FIFA 15-23)</h3>
+      @if (playerName()) {
+        <p class="timeline-subtitle">Trayectoria de {{ playerName() }} por edición</p>
+      }
+    </div>
+
+    @if (timelineItems().length > 0) {
+      <div class="summary-pills">
+        <span class="summary-pill">
+          {{ timelineItems().length }}
+          {{ timelineItems().length === 1 ? 'edición' : 'ediciones' }}
+        </span>
+        @if (peakOverall(); as peak) {
+          <span class="summary-pill pill-peak">Pico: {{ peak }} OVR</span>
+        }
+        @if (careerDelta() !== null) {
+          <span
+            class="summary-pill"
+            [class.pill-positive]="(careerDelta() ?? 0) > 0"
+            [class.pill-negative]="(careerDelta() ?? 0) < 0"
+          >
+            Progreso: {{ formatDelta(careerDelta()) }} OVR
+          </span>
+        }
+      </div>
+    }
+  </header>
+
+  @if (isLoading()) {
+    <p class="status-message">Cargando evolución histórica...</p>
+  } @else if (error(); as errorMessage) {
+    <div class="error-state">
+      <div class="alert-error">{{ errorMessage }}</div>
+      <button type="button" class="btn-retry" (click)="requestRetry()">Reintentar</button>
+    </div>
+  } @else if (timelineItems().length === 0) {
+    <p class="status-message">No hay registros históricos disponibles para este jugador.</p>
+  } @else {
+    <div class="timeline-grid">
+      <div class="timeline-chart-panel">
+        <div class="chart-box">
+          <canvas
+            #lineCanvas
+            class="history-canvas"
+            aria-label="Gráfico lineal de evolución histórica de Overall y Potencial"
+          ></canvas>
+        </div>
+      </div>
+
+      <div class="timeline-track-panel">
+        <ol class="timeline-list">
+          @for (item of timelineItems(); track item.id) {
+            <li class="timeline-item" [class.is-current]="item.isCurrent">
+              <span class="timeline-dot" aria-hidden="true"></span>
+
+              <div class="timeline-entry">
+                <div class="entry-top">
+                  <span class="edition-badge">FIFA {{ item.fifaVersion }}</span>
+
+                  @if (item.isCurrent) {
+                    <span class="current-tag">Edición actual</span>
+                  } @else {
+                    <a [routerLink]="['/players', item.id]" class="entry-link">Ver ficha</a>
+                  }
+                </div>
+
+                <div class="entry-stats">
+                  <span class="ovr-chip">OVR {{ item.overall }}</span>
+                  @if (item.overallDelta !== null) {
+                    <span
+                      class="delta-chip"
+                      [class.is-up]="item.overallDelta > 0"
+                      [class.is-down]="item.overallDelta < 0"
+                    >
+                      {{ formatDelta(item.overallDelta) }}
+                    </span>
+                  }
+                  <span class="stat-meta">POT {{ item.potential }}</span>
+                  <span class="stat-meta">{{ item.age }} años</span>
+                </div>
+
+                <p class="entry-context">
+                  {{ item.clubName || 'Sin club' }} · {{ item.playerPositions }} ·
+                  {{ formatEur(item.valueEur) }}
+                </p>
+              </div>
+            </li>
+          }
+        </ol>
+      </div>
+    </div>
+  }
+</section>

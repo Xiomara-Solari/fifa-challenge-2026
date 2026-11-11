@@ -1,0 +1,532 @@
+<section class="player-form-page">
+  <header class="form-header">
+    <div>
+      <h2>{{ title() }}</h2>
+      <p class="form-subtitle">
+        @if (isEditMode()) {
+          Modifica los datos del jugador y guarda los cambios.
+        } @else {
+          Completa los datos para registrar un nuevo jugador.
+        }
+      </p>
+    </div>
+  </header>
+
+  @if (invalidId()) {
+    <div class="form-card">
+      <div class="alert-error">
+        El identificador del jugador no es válido. Vuelve al listado y selecciona un jugador existente.
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="onCancel()">
+          Volver al listado
+        </button>
+      </div>
+    </div>
+  } @else if (isEditMode() && isLoading()) {
+    <div class="form-card">
+      <p class="form-status">Cargando datos del jugador...</p>
+    </div>
+  } @else if (isEditMode() && loadError(); as error) {
+    <div class="form-card">
+      <div class="alert-error">{{ error }}</div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="onCancel()">
+          Volver al listado
+        </button>
+        <button type="button" class="btn-primary" (click)="reload()">
+          Reintentar
+        </button>
+      </div>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-card" novalidate>
+      @if (successMessage(); as message) {
+        <div class="alert-success">{{ message }}</div>
+      }
+
+      @if (submitError(); as error) {
+        <div class="alert-error">{{ error }}</div>
+      }
+
+      <section class="form-section">
+        <h3>Información básica</h3>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="fifaVersion">
+              Versión FIFA <span class="required">*</span>
+            </label>
+            <input
+              id="fifaVersion"
+              type="text"
+              formControlName="fifaVersion"
+              maxlength="255"
+              placeholder="Ej. 23"
+              [class.is-invalid]="hasError('fifaVersion')"
+            />
+            @if (errorMessage('fifaVersion'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="fifaUpdate">
+              Actualización FIFA <span class="required">*</span>
+            </label>
+            <input
+              id="fifaUpdate"
+              type="text"
+              formControlName="fifaUpdate"
+              maxlength="255"
+              placeholder="Ej. 1"
+              [class.is-invalid]="hasError('fifaUpdate')"
+            />
+            @if (errorMessage('fifaUpdate'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field form-field-wide">
+            <label for="longName">
+              Nombre del jugador <span class="required">*</span>
+            </label>
+            <input
+              id="longName"
+              type="text"
+              formControlName="longName"
+              maxlength="255"
+              placeholder="Nombre completo"
+              [class.is-invalid]="hasError('longName')"
+            />
+            @if (errorMessage('longName'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field form-field-wide">
+            <label for="playerFaceUrl">
+              URL de la foto <span class="required">*</span>
+            </label>
+            <input
+              id="playerFaceUrl"
+              type="url"
+              formControlName="playerFaceUrl"
+              maxlength="255"
+              placeholder="https://..."
+              [class.is-invalid]="hasError('playerFaceUrl')"
+            />
+            @if (errorMessage('playerFaceUrl'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="playerPositions">
+              Posiciones <span class="required">*</span>
+            </label>
+            <input
+              id="playerPositions"
+              type="text"
+              formControlName="playerPositions"
+              maxlength="255"
+              placeholder="Ej. ST, LW"
+              [class.is-invalid]="hasError('playerPositions')"
+            />
+            @if (errorMessage('playerPositions'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="clubName">
+              Club <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="clubName"
+              type="text"
+              formControlName="clubName"
+              maxlength="255"
+              placeholder="Nombre del club"
+              [class.is-invalid]="hasError('clubName')"
+            />
+            @if (errorMessage('clubName'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="nationalityName">
+              Nacionalidad <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="nationalityName"
+              type="text"
+              formControlName="nationalityName"
+              maxlength="255"
+              placeholder="Ej. España"
+              [class.is-invalid]="hasError('nationalityName')"
+            />
+            @if (errorMessage('nationalityName'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h3>Perfil deportivo</h3>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="age">
+              Edad <span class="required">*</span>
+            </label>
+            <input
+              id="age"
+              type="number"
+              formControlName="age"
+              min="15"
+              max="60"
+              step="1"
+              inputmode="numeric"
+              placeholder="15 - 60"
+              [class.is-invalid]="hasError('age')"
+            />
+            @if (errorMessage('age'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="heightCm">
+              Altura (cm) <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="heightCm"
+              type="number"
+              formControlName="heightCm"
+              min="100"
+              max="250"
+              step="1"
+              inputmode="numeric"
+              placeholder="100 - 250"
+              [class.is-invalid]="hasError('heightCm')"
+            />
+            @if (errorMessage('heightCm'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="weightKg">
+              Peso (kg) <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="weightKg"
+              type="number"
+              formControlName="weightKg"
+              min="30"
+              max="150"
+              step="1"
+              inputmode="numeric"
+              placeholder="30 - 150"
+              [class.is-invalid]="hasError('weightKg')"
+            />
+            @if (errorMessage('weightKg'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="preferredFoot">
+              Pie preferido <span class="optional">(opcional)</span>
+            </label>
+            <select
+              id="preferredFoot"
+              formControlName="preferredFoot"
+              [class.is-invalid]="hasError('preferredFoot')"
+            >
+              <option value="">Sin especificar</option>
+              <option value="Left">Izquierdo (Left)</option>
+              <option value="Right">Derecho (Right)</option>
+            </select>
+            @if (errorMessage('preferredFoot'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="weakFoot">
+              Pie débil <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="weakFoot"
+              type="number"
+              formControlName="weakFoot"
+              min="1"
+              max="5"
+              step="1"
+              inputmode="numeric"
+              placeholder="1 - 5"
+              [class.is-invalid]="hasError('weakFoot')"
+            />
+            @if (errorMessage('weakFoot'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="skillMoves">
+              Filigranas <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="skillMoves"
+              type="number"
+              formControlName="skillMoves"
+              min="1"
+              max="5"
+              step="1"
+              inputmode="numeric"
+              placeholder="1 - 5"
+              [class.is-invalid]="hasError('skillMoves')"
+            />
+            @if (errorMessage('skillMoves'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h3>Valoraciones</h3>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="overall">
+              Valoración general <span class="required">*</span>
+            </label>
+            <input
+              id="overall"
+              type="number"
+              formControlName="overall"
+              min="1"
+              max="99"
+              step="1"
+              inputmode="numeric"
+              placeholder="1 - 99"
+              [class.is-invalid]="hasError('overall')"
+            />
+            @if (errorMessage('overall'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="potential">
+              Potencial <span class="required">*</span>
+            </label>
+            <input
+              id="potential"
+              type="number"
+              formControlName="potential"
+              min="1"
+              max="99"
+              step="1"
+              inputmode="numeric"
+              placeholder="1 - 99"
+              [class.is-invalid]="hasError('potential')"
+            />
+            @if (errorMessage('potential'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="pace">
+              Ritmo <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="pace"
+              type="number"
+              formControlName="pace"
+              min="0"
+              max="99"
+              step="1"
+              inputmode="numeric"
+              placeholder="0 - 99"
+              [class.is-invalid]="hasError('pace')"
+            />
+            @if (errorMessage('pace'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="shooting">
+              Tiro <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="shooting"
+              type="number"
+              formControlName="shooting"
+              min="0"
+              max="99"
+              step="1"
+              inputmode="numeric"
+              placeholder="0 - 99"
+              [class.is-invalid]="hasError('shooting')"
+            />
+            @if (errorMessage('shooting'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="passing">
+              Pase <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="passing"
+              type="number"
+              formControlName="passing"
+              min="0"
+              max="99"
+              step="1"
+              inputmode="numeric"
+              placeholder="0 - 99"
+              [class.is-invalid]="hasError('passing')"
+            />
+            @if (errorMessage('passing'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="dribbling">
+              Regate <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="dribbling"
+              type="number"
+              formControlName="dribbling"
+              min="0"
+              max="99"
+              step="1"
+              inputmode="numeric"
+              placeholder="0 - 99"
+              [class.is-invalid]="hasError('dribbling')"
+            />
+            @if (errorMessage('dribbling'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="defending">
+              Defensa <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="defending"
+              type="number"
+              formControlName="defending"
+              min="0"
+              max="99"
+              step="1"
+              inputmode="numeric"
+              placeholder="0 - 99"
+              [class.is-invalid]="hasError('defending')"
+            />
+            @if (errorMessage('defending'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="physic">
+              Físico <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="physic"
+              type="number"
+              formControlName="physic"
+              min="0"
+              max="99"
+              step="1"
+              inputmode="numeric"
+              placeholder="0 - 99"
+              [class.is-invalid]="hasError('physic')"
+            />
+            @if (errorMessage('physic'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h3>Mercado</h3>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="valueEur">
+              Valor de mercado (€) <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="valueEur"
+              type="number"
+              formControlName="valueEur"
+              min="0"
+              max="2147483647"
+              step="1"
+              inputmode="numeric"
+              placeholder="0 o superior"
+              [class.is-invalid]="hasError('valueEur')"
+            />
+            @if (errorMessage('valueEur'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="wageEur">
+              Sueldo (€) <span class="optional">(opcional)</span>
+            </label>
+            <input
+              id="wageEur"
+              type="number"
+              formControlName="wageEur"
+              min="0"
+              max="2147483647"
+              step="1"
+              inputmode="numeric"
+              placeholder="0 o superior"
+              [class.is-invalid]="hasError('wageEur')"
+            />
+            @if (errorMessage('wageEur'); as error) {
+              <p class="field-error">{{ error }}</p>
+            }
+          </div>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="onCancel()"
+          [disabled]="isSubmitting()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="form.invalid || isSubmitting() || successMessage() !== null"
+        >
+          {{ submitLabel() }}
+        </button>
+      </div>
+    </form>
+  }
+</section>
