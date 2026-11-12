@@ -35,11 +35,6 @@ export class PlayersController {
     return res.send(csvData);
   }
 
-  @Get('sanitize/clubs')
-  async sanitizeClubs() {
-    return await this.playersService.sanitizeClubNames();
-  }
-
 
   @Get(':id')
   async getById(@Param('id', ParseIntPipe) id: number) {

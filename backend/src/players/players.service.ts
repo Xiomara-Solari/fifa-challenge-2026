@@ -270,42 +270,4 @@ Instrucciones para la redacción:
       );
     }
   }
-
-  // 8. Parche temporal de saneamiento para corregir Mojibake en club_name
-  async sanitizeClubNames() {
-    const brokenToken = 'MÃ¼nchen';
-    const fixedToken = 'München';
-
-    const matchedPlayers = await this.playerRepository
-      .createQueryBuilder('player')
-      .select(['player.id', 'player.clubName'])
-      .where('player.clubName LIKE :pattern', {
-        pattern: `%${brokenToken}%`,
-      })
-      .getMany();
-
-    const playersToUpdate = matchedPlayers.filter(
-      (player) =>
-        typeof player.clubName === 'string' &&
-        player.clubName.includes(brokenToken),
-    );
-
-    if (playersToUpdate.length === 0) {
-      return {
-        message: 'No se encontraron registros pendientes por sanear.',
-        updatedCount: 0,
-      };
-    }
-
-    for (const player of playersToUpdate) {
-      player.clubName = player.clubName.replaceAll(brokenToken, fixedToken);
-    }
-
-    await this.playerRepository.save(playersToUpdate, { chunk: 100 });
-
-    return {
-      message: `Se sanearon ${playersToUpdate.length} registros de clubName correctamente.`,
-      updatedCount: playersToUpdate.length,
-    };
-  }
 }
