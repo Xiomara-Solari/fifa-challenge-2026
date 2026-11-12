@@ -54,6 +54,18 @@ describe('PlayersService', () => {
     age: 25,
   };
 
+  const createQueryBuilderMock = (rows: Player[]) => {
+    const qb = {
+      select: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      addOrderBy: jest.fn().mockReturnThis(),
+      getMany: jest.fn().mockResolvedValue(rows),
+    };
+    repository.createQueryBuilder.mockReturnValue(qb);
+    return qb;
+  };
+
   beforeEach(async () => {
     repository = {
       create: jest.fn(),
@@ -132,18 +144,6 @@ describe('PlayersService', () => {
   });
 
   describe('getHistory', () => {
-    const createQueryBuilderMock = (rows: Player[]) => {
-      const qb = {
-        select: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        orderBy: jest.fn().mockReturnThis(),
-        addOrderBy: jest.fn().mockReturnThis(),
-        getMany: jest.fn().mockResolvedValue(rows),
-      };
-      repository.createQueryBuilder.mockReturnValue(qb);
-      return qb;
-    };
-
     it('devuelve el historial cronológico ordenado para el longName del jugador', async () => {
       const historyRows = [
         { ...playerRecord, id: 1, fifaVersion: '21', overall: 82 },
@@ -180,6 +180,39 @@ describe('PlayersService', () => {
       repository.findOne.mockResolvedValue(playerRecord);
 
       await expect(service.getHistory(5)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('sanitizeClubNames', () => {
+    it('reemplaza MÃ¼nchen por München y guarda en lote solo los registros afectados', async () => {
+      const brokenPlayer = { id: 1, clubName: 'FC Bayern MÃ¼nchen' } as Player;
+      const falsePositive = { id: 2, clubName: 'FC Bayern München' } as Player;
+      const qb = createQueryBuilderMock([brokenPlayer, falsePositive]);
+      repository.save.mockResolvedValue([brokenPlayer]);
+
+      const result = await service.sanitizeClubNames();
+
+      expect(qb.where).toHaveBeenCalledWith('player.clubName LIKE :pattern', {
+        pattern: '%MÃ¼nchen%',
+      });
+      expect(brokenPlayer.clubName).toBe('FC Bayern München');
+      expect(repository.save).toHaveBeenCalledWith([brokenPlayer], { chunk: 100 });
+      expect(result).toEqual({
+        message: 'Se sanearon 1 registros de clubName correctamente.',
+        updatedCount: 1,
+      });
+    });
+
+    it('no llama a save cuando no hay registros con Mojibake', async () => {
+      createQueryBuilderMock([]);
+
+      const result = await service.sanitizeClubNames();
+
+      expect(repository.save).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        message: 'No se encontraron registros pendientes por sanear.',
+        updatedCount: 0,
+      });
     });
   });
 });
